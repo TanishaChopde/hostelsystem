@@ -1,0 +1,14 @@
+{% extends "base.html" %}{% block content %}
+<div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+ <div><h1 class="font-serif text-3xl font-bold text-forest">{{ title }}</h1><p class="mt-1 text-sm text-slate-500">{{ rows|length }} record{{ rows|length|pluralize }}</p></div>
+ {% if add %}<a href="{{ add.0 }}" class="btn"><i data-lucide="plus" class="h-4 w-4"></i>{{ add.1 }}</a>{% endif %}</div>
+<div class="card overflow-x-auto">
+{% if rows %}<table class="min-w-full text-left text-sm">
+<thead><tr class="bg-sage-100 text-xs uppercase tracking-wide text-forest-700">{% for c in cols %}<th class="px-5 py-3.5 font-semibold">{{ c }}</th>{% endfor %}<th class="px-5 py-3.5 text-right font-semibold">Action</th></tr></thead>
+<tbody class="divide-y divide-slate-100">
+{% for r in rows %}<tr class="transition hover:bg-cream/60">{% for c in r.cells %}<td class="px-5 py-4 {% if forloop.first %}font-semibold text-forest-900{% else %}text-slate-600{% endif %}">{{ c }}</td>{% endfor %}
+<td class="px-5 py-4 text-right"><div class="flex justify-end gap-2">{% for label, url in r.actions %}<form method="post" action="{{ url }}">{% csrf_token %}<button>{{ label }}</button></form>{% endfor %}</div></td></tr>{% endfor %}
+</tbody></table>
+{% else %}<div class="flex flex-col items-center px-6 py-16 text-center"><span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-sage-100"><i data-lucide="inbox" class="h-7 w-7 text-sage"></i></span>
+<h3 class="mt-4 font-semibold">Nothing here yet</h3><p class="mt-1 text-sm text-slate-500">New records will show up here.</p></div>{% endif %}
+</div>{% endblock %}

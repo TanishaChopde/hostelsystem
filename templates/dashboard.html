@@ -1,0 +1,28 @@
+{% extends "base.html" %}{% block content %}
+<div class="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-br from-forest-700 to-forest-900 p-7 text-white shadow-lg sm:p-9">
+ <div class="absolute -right-10 -top-16 h-56 w-56 rounded-full border border-white/20"></div><div class="absolute right-24 top-10 h-28 w-28 rounded-full border border-white/10"></div>
+ <p class="text-sm text-sage-200">{{ user.get_role_display }} dashboard</p>
+ <h1 class="mt-1 font-serif text-3xl font-bold sm:text-4xl">Welcome back, {{ user.get_full_name|default:user.username }} 👋</h1>
+ <p class="mt-2 max-w-md text-sm text-sage-200">Here's what's happening in your hostel today.</p></div>
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+{% for label, value in cards %}
+<div class="rounded-3xl p-5 {% if forloop.first %}bg-forest text-white shadow-lg{% else %}card text-forest-900{% endif %}"><div class="flex items-start justify-between">
+ <div class="min-w-0"><p class="truncate text-sm font-medium {% if forloop.first %}text-sage-200{% else %}text-slate-500{% endif %}">{{ label }}</p><p class="mt-2 text-3xl font-bold tracking-tight">{{ value }}</p></div>
+ <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl {% if forloop.first %}bg-white/15{% else %}bg-sage-100 text-forest{% endif %}"><i data-lucide="{% if 'tudents' in label %}users{% elif 'ccupancy' in label %}building-2{% elif 'ending' in label %}clock{% elif 'pen' in label %}loader{% elif 'room' in label %}bed-double{% else %}wallet{% endif %}" class="h-5 w-5"></i></span></div></div>
+{% endfor %}</div>
+<div class="mt-6 grid gap-6 lg:grid-cols-3">
+ <div class="card p-6 lg:col-span-2"><h2 class="font-serif text-lg font-bold">Recent activity</h2>
+  <ul class="mt-4 divide-y divide-slate-100">{% for t, kind, who, status in recent %}
+   <li class="flex items-center justify-between gap-3 py-3"><div class="flex items-center gap-3"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sage-100 text-forest"><i data-lucide="{% if kind == 'Complaint' %}clipboard-list{% elif kind == 'Leave request' %}luggage{% else %}bed-double{% endif %}" class="h-4 w-4"></i></span>
+    <div><p class="text-sm font-semibold">{{ kind }}{% if who %} · {{ who }}{% endif %}</p><p class="text-xs text-slate-400">{{ t|timesince }} ago</p></div></div>
+   <span class="status">{{ status }}</span></li>
+  {% empty %}<li class="py-8 text-center text-sm text-slate-400">No activity yet.</li>{% endfor %}</ul></div>
+ <div class="card p-6"><h2 class="font-serif text-lg font-bold">Quick actions</h2><div class="mt-4 space-y-2.5">
+  {% if user.role == 'student' %}<a href="/rooms/" class="btn w-full justify-start"><i data-lucide="bed-double" class="h-4 w-4"></i>Request a room</a>
+  <a href="/complaints/new/" class="btn w-full justify-start"><i data-lucide="clipboard-list" class="h-4 w-4"></i>New complaint</a>
+  <a href="/leaves/new/" class="btn w-full justify-start"><i data-lucide="luggage" class="h-4 w-4"></i>Apply for out-pass</a>
+  {% else %}<a href="/complaints/" class="btn w-full justify-start"><i data-lucide="clipboard-list" class="h-4 w-4"></i>View complaints</a>
+  <a href="/rooms/" class="btn w-full justify-start"><i data-lucide="bed-double" class="h-4 w-4"></i>View rooms</a>{% endif %}</div></div>
+</div>
+<script>document.querySelectorAll('.status').forEach(s=>{const t=s.textContent.trim(),m={Pending:'warn','In Progress':'info',Resolved:'ok',Approved:'ok',Rejected:'bad'}[t]||'info';s.className='badge b-'+m;s.textContent='';s.appendChild(document.createElement('i'));s.append(t)})</script>
+{% endblock %}

@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HostelCare — Hostel Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','system-ui','sans-serif'],serif:['Fraunces','serif']},colors:{cream:'#eceae4',forest:{DEFAULT:'#2f4a3a',700:'#3a5a47',900:'#22362a'},sage:{DEFAULT:'#7fa88b',100:'#e3ece5',200:'#c9dccd',300:'#9db8a5'}}}}}</script>
+<style>
+body{font-family:Inter,system-ui,sans-serif}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}.fade{animation:up .4s ease both}
+.nv{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;font-size:.9rem;font-weight:500;color:#c9dccd;transition:.15s}
+.nv:hover{background:rgba(255,255,255,.1);color:#fff}.nv.on{background:#eceae4;color:#22362a}
+.fm p{margin:0 0 14px}.fm label{display:block;margin-bottom:6px;font-size:.8rem;font-weight:600;color:#3a5a47}
+.fm input,.fm select,.fm textarea{width:100%;border:0;border-radius:14px;background:#f3f2ec;padding:.7rem 1rem;font-size:.9rem;color:#22362a;box-shadow:inset 0 0 0 1px #d9ddd3;transition:.15s}
+.fm input:focus,.fm select:focus,.fm textarea:focus{outline:0;background:#fff;box-shadow:inset 0 0 0 2px #2f4a3a}
+.fm p:has(.errorlist) input,.fm p:has(.errorlist) select{box-shadow:inset 0 0 0 2px #e11d48;background:#fff1f2}
+.fm .helptext,.fm ul{font-size:.72rem;color:#8a948d;margin:6px 0 0;padding:0;list-style:none;display:block}
+.fm ul.errorlist{color:#e11d48;font-weight:600;margin:0 0 6px;font-size:.78rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;border-radius:14px;background:#2f4a3a;color:#fff;font-weight:600;font-size:.9rem;padding:.75rem 1.4rem;transition:.2s;box-shadow:0 6px 16px rgba(47,74,58,.25)}
+.btn:hover{background:#3a5a47;transform:translateY(-1px)}
+.badge{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:3px 11px;font-size:.75rem;font-weight:600;white-space:nowrap;box-shadow:inset 0 0 0 1px var(--r)}
+.badge i{width:6px;height:6px;border-radius:99px;background:var(--d)}
+.b-warn{background:#fffbeb;color:#b45309;--r:rgba(217,119,6,.25);--d:#f59e0b}.b-info{background:#eff6ff;color:#1d4ed8;--r:rgba(37,99,235,.25);--d:#3b82f6}
+.b-ok{background:#e3ece5;color:#2f4a3a;--r:rgba(47,74,58,.25);--d:#3a8a5a}.b-bad{background:#fef2f2;color:#b91c1c;--r:rgba(220,38,38,.25);--d:#ef4444}
+.act{border:0;cursor:pointer;border-radius:10px;padding:.4rem .75rem;font-size:.75rem;font-weight:600;background:#e3ece5;color:#2f4a3a;transition:.15s}
+.act:hover{background:#c9dccd}.act.ok{background:#2f4a3a;color:#fff}.act.ok:hover{background:#3a5a47}.act.bad{background:#fff1f2;color:#be123c}.act.bad:hover{background:#ffe4e6}
+.card{background:#fff;border-radius:1.5rem;box-shadow:0 2px 14px rgba(34,54,42,.06)}
+</style></head>
+<body class="bg-cream text-forest-900 antialiased">
+{% if user.is_authenticated %}
+<div id="ov" class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden" onclick="side(false)"></div>
+<aside id="sb" class="fixed inset-y-3 left-3 z-40 flex w-64 -translate-x-[110%] flex-col rounded-3xl bg-forest p-4 shadow-xl transition-transform duration-200 lg:translate-x-0">
+ <div class="flex items-center gap-3 px-2 pb-5 pt-2"><span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-cream"><i data-lucide="building-2" class="h-5 w-5 text-forest"></i></span>
+  <div><p class="font-serif text-lg font-bold leading-tight text-white">HostelCare</p><p class="text-[11px] text-sage-300">Hostel Management</p></div></div>
+ <nav class="flex-1 space-y-1 overflow-y-auto">
+  <a class="nv" href="/"><i data-lucide="layout-dashboard" class="h-[18px] w-[18px]"></i>Dashboard</a>
+  <a class="nv" href="/rooms/"><i data-lucide="bed-double" class="h-[18px] w-[18px]"></i>Rooms</a>
+  {% if user.role == 'student' or user.role == 'warden' or user.role == 'admin' %}<a class="nv" href="/room-requests/"><i data-lucide="inbox" class="h-[18px] w-[18px]"></i>Room Requests</a>{% endif %}
+  <a class="nv" href="/complaints/"><i data-lucide="clipboard-list" class="h-[18px] w-[18px]"></i>Complaints</a>
+  {% if user.role != 'maintenance' and user.role != 'mess' %}<a class="nv" href="/leaves/"><i data-lucide="luggage" class="h-[18px] w-[18px]"></i>Leave / Out-Pass</a>
+  <a class="nv" href="/fees/"><i data-lucide="wallet" class="h-[18px] w-[18px]"></i>Fees &amp; Dues</a>{% endif %}
+  {% if user.role == 'warden' or user.role == 'admin' %}<a class="nv" href="/students/"><i data-lucide="users" class="h-[18px] w-[18px]"></i>Students</a>{% endif %}
+  {% if user.role == 'student' %}<a class="nv" href="/profile/"><i data-lucide="user" class="h-[18px] w-[18px]"></i>Profile</a>{% endif %}
+ </nav>
+ <div class="rounded-2xl bg-white/10 p-3"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-full bg-sage-200 text-sm font-bold text-forest">{{ user.username|slice:":2"|upper }}</span>
+  <div class="min-w-0"><p class="truncate text-sm font-semibold text-white">{{ user.get_full_name|default:user.username }}</p><p class="truncate text-xs text-sage-300">{{ user.get_role_display }}</p></div></div>
+  <form method="post" action="/logout/">{% csrf_token %}<button class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-white/10 py-2 text-sm font-medium text-white transition hover:bg-white/20"><i data-lucide="log-out" class="h-4 w-4"></i>Logout</button></form></div>
+</aside>
+<div class="lg:pl-72">
+ <header class="flex items-center justify-between px-4 pt-5 sm:px-8">
+  <button class="rounded-xl bg-white p-2.5 shadow-sm lg:hidden" onclick="side(true)" aria-label="Menu"><i data-lucide="menu" class="h-5 w-5"></i></button>
+  <span class="ml-auto inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold shadow-sm"><i data-lucide="shield-check" class="h-4 w-4 text-sage"></i>{{ user.get_role_display }}</span>
+ </header>
+ <main class="fade mx-auto max-w-7xl px-4 py-6 sm:px-8">
+  {% for m in messages %}<div class="mb-4 flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium {% if m.tags == 'error' %}bg-rose-50 text-rose-700{% elif m.tags == 'info' %}bg-blue-50 text-blue-700{% else %}bg-sage-100 text-forest{% endif %}"><i data-lucide="{% if m.tags == 'error' %}alert-circle{% else %}check-circle-2{% endif %}" class="h-4 w-4"></i>{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+ </main></div>
+{% else %}{% block auth %}{% endblock %}{% endif %}
+<script>
+function side(o){document.getElementById('sb').classList.toggle('-translate-x-[110%]',!o);document.getElementById('ov').classList.toggle('hidden',!o)}
+document.querySelectorAll('.nv').forEach(a=>{const h=a.getAttribute('href'),p=location.pathname;if(h==='/'?p==='/':p.startsWith(h))a.classList.add('on')});
+const C={Pending:'warn','In Progress':'info',Resolved:'ok',Approved:'ok',Rejected:'bad',Paid:'ok',Due:'bad',Yes:'ok',No:'bad'};
+document.querySelectorAll('td').forEach(td=>{const t=td.textContent.trim();if(C[t]&&!td.querySelector('form')){td.textContent='';const s=document.createElement('span');s.className='badge b-'+C[t];s.appendChild(document.createElement('i'));s.append(t);td.appendChild(s)}});
+document.querySelectorAll('td button').forEach(b=>{const t=b.textContent;b.className='act '+(t.startsWith('Approve')?'ok':t.startsWith('Reject')?'bad':'')});
+document.querySelectorAll('input[type=password]').forEach(i=>{const w=document.createElement('div');w.style.position='relative';i.parentNode.insertBefore(w,i);w.appendChild(i);i.style.paddingRight='4.2rem';const b=document.createElement('button');b.type='button';b.textContent='Show';b.style.cssText='position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:.75rem;font-weight:600;color:#3a5a47;background:none;border:0;cursor:pointer';b.onclick=()=>{const h=i.type==='password';i.type=h?'text':'password';b.textContent=h?'Hide':'Show'};w.appendChild(b)});
+lucide.createIcons();
+</script></body></html>
